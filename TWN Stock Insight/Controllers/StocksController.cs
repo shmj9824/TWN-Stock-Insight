@@ -27,5 +27,11 @@ namespace TWN_Stock_Insight.Controllers
             return PartialView("_StockResult", prices);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> DetailsJson(string symbol)
+        {
+            var result = await _stockService.GetStockPricesAsync(symbol);
+            return Json(result); // 回傳 JSON
+        }
     }
 }
