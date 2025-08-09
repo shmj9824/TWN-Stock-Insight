@@ -19,13 +19,18 @@
 </form>
 
 <div id="resultArea"></div>
-<canvas id="stockChart" width="800" height="400"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div style="width:600px; height:300px;">
+    <canvas id="stockChart"></canvas>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
     let chart;  // 用來儲存 Chart.js 物件
+
     //當id=stockForm的Submit按鈕啟動後，此處被攔截
     $("#stockForm").submit(function(e) {
         //阻止表單跳轉頁面
@@ -39,9 +44,10 @@
         ).fail(function (xhr) {
             alert("查詢失敗：" + xhr.responseText);
         });
-        $.post('@Url.Action("Details", "Stocks")', 
+        $.post('@Url.Action("DetailsJson", "Stocks")',
             $(this).serialize(),
             function(data) {
+
                 const labels = data.map(x => new Date(x.date).toISOString().split('T')[0]);
                 const closePrices = data.map(x => x.close);
 
