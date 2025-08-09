@@ -1,0 +1,46 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<StockPrice>
+@{
+    ViewData["Title"] = "股票走勢";
+}
+
+<h2>@ViewBag.Symbol 近期股價</h2>
+
+<canvas id="stockChart" width="800" height="400"></canvas>
+
+<div class="mt-4">
+    <!-- 回首頁 -->
+    <a class="btn btn-secondary me-2" asp-controller="Home" asp-action="Index">
+        回首頁
+    </a>
+
+    <!-- 回股票查詢 -->
+    <a class="btn btn-primary" asp-controller="Stocks" asp-action="Index">
+        回股票查詢
+    </a>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(Json.Serialize(Model.Select(p => p.Date.ToString("yyyy-MM-dd"))));
+        const data = @Html.Raw(Json.Serialize(Model.Select(p => p.Close)));
+
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '收盤價',
+                    data: data,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+    </script>
+}
+

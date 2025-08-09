@@ -1,0 +1,71 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "股票查詢";
+}
+
+<h2>查詢股票</h2>
+<!-- asp-action="Details"       呼叫Details頁面-->
+
+@* <form asp-action="Details" method="post">
+    <input type="text" name="symbol" placeholder="輸入股票代號 (如 2330)" required />
+    <button type="submit">查詢</button>
+</form> *@
+
+<form id="stockForm">
+    <input type="text" name="symbol" placeholder="輸入股票代號" required />
+    <button type="submit">查詢</button>
+</form>
+
+<div id="resultArea"></div>
+<canvas id="stockChart" width="800" height="400"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    let chart;  // 用來儲存 Chart.js 物件
+    //當id=stockForm的Submit按鈕啟動後，此處被攔截
+    $("#stockForm").submit(function(e) {
+        //阻止表單跳轉頁面
+        e.preventDefault();
+        //post請求 傳送至/Stocks/Details
+        $.post('@Url.Action("Details", "Stocks")', 
+            $(this).serialize(), 
+            function(data) {
+                $("#resultArea").html(data);
+            }
+        ).fail(function (xhr) {
+            alert("查詢失敗：" + xhr.responseText);
+        });
+        $.post('@Url.Action("Details", "Stocks")', 
+            $(this).serialize(),
+            function(data) {
+                const labels = data.map(x => new Date(x.date).toISOString().split('T')[0]);
+                const closePrices = data.map(x => x.close);
+
+                // 如果已有圖表，先銷毀
+                if(chart) {
+                    chart.destroy();
+                }
+
+                const ctx = document.getElementById('stockChart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '收盤價',
+                            data: closePrices,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    }
+                });
+            }
+        ).fail(function(xhr) {
+            alert("查詢失敗：" + xhr.responseText);
+        });
+    });
+</script>

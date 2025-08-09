@@ -1,0 +1,61 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model IEnumerable<TWN_Stock_Insight.Models.StockPrice>
+@if (Model == null || !Model.Any())
+{
+    <p>查無資料</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>開盤價</th>
+                <th>最高點</th>
+                <th>最低點</th>
+                <th>收盤價</th>
+                <th>成交筆數</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stock in Model)
+            {
+                <tr>
+                    <td>@stock.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@stock.Open</td>
+                    <td>@stock.High</td>
+                    <td>@stock.Low</td>
+                    <td>@stock.Close</td>
+                    <td>@stock.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const labels = @Html.Raw(Json.Serialize(Model.Select(p => p.Date.ToString("yyyy-MM-dd"))));
+            const data = @Html.Raw(Json.Serialize(Model.Select(p => p.Close)));
+
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '收盤價',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                }
+            });
+        </script>
+    }
+}
